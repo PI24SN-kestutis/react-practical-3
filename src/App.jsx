@@ -1,12 +1,22 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 
+/**
+ * Pagrindinis komponentas: įkelia naudotojų duomenis ir valdo
+ * įkėlimo būseną (kraunama / klaida / paruošta).
+ */
 function App() {
+  // Visi įkelti naudotojai (šaltinis, kurio vėliau nekeičiame).
   const [users, setUsers] = useState([])
+  // true, kol laukiame atsakymo iš /users.json.
   const [loading, setLoading] = useState(true)
+  // Klaidos pranešimas naudotojui arba null, jei klaidos nėra.
   const [error, setError] = useState(null)
 
+  // Duomenys įkeliami vieną kartą, komponentui pirmą kartą atsiradus ekrane.
   useEffect(() => {
+    // Leidžia nutraukti užklausą, jei komponentas pašalinamas
+    // (pvz., dvigubas efekto paleidimas StrictMode režime).
     const controller = new AbortController()
 
     async function loadUsers() {
@@ -14,20 +24,24 @@ function App() {
         const response = await fetch('/users.json', {
           signal: controller.signal,
         })
+        // fetch nemeta klaidos esant 404/500, todėl tikriname patys.
         if (!response.ok) {
           throw new Error(`Serverio klaida: ${response.status}`)
         }
         const data = await response.json()
         setUsers(data)
       } catch (err) {
+        // Nutraukta užklausa nėra tikra klaida – nieko nerodome.
         if (err.name === 'AbortError') return
         setError('Nepavyko įkelti naudotojų. Bandykite dar kartą vėliau.')
       } finally {
+        // Nutrauktos užklausos atveju būsenos neliečiame.
         if (!controller.signal.aborted) setLoading(false)
       }
     }
 
     loadUsers()
+    // Valymas: nutraukiame vykstančią užklausą.
     return () => controller.abort()
   }, [])
 
