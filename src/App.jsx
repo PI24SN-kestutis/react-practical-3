@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import SearchBar from './components/SearchBar'
 import UserCard from './components/UserCard'
 import './App.css'
@@ -57,11 +57,14 @@ function App() {
 
   // Filtruojame jau įkeltus duomenis pagal vardo dalį (be didžiųjų/mažųjų
   // raidžių skirtumo). Rezultatui atskiros būsenos nereikia – jis
-  // išvedamas iš users ir searchText. Optimizavimas (useMemo) – vėliau.
-  const query = searchText.trim().toLowerCase()
-  const filteredUsers = users.filter((user) =>
-    user.name.toLowerCase().includes(query),
-  )
+  // išvedamas iš users ir searchText.
+  // useMemo: filtravimas kartojamas tik pasikeitus users arba searchText;
+  // kitų perpiešimų metu (pvz., pasikeitus loading) naudojamas
+  // anksčiau apskaičiuotas rezultatas.
+  const filteredUsers = useMemo(() => {
+    const query = searchText.trim().toLowerCase()
+    return users.filter((user) => user.name.toLowerCase().includes(query))
+  }, [users, searchText])
 
   return (
     <main className="app">
