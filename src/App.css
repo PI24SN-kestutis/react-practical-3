@@ -3,3 +3,7 @@
   margin: 0 auto;
   padding: 24px 16px;
 }
+
+.error {
+  color: #b00020;
+}
