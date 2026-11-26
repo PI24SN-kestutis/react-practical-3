@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import UserCard from './components/UserCard'
 import './App.css'
 
 /**
@@ -50,7 +51,15 @@ function App() {
       <h1>Naudotojų katalogas</h1>
       {loading && <p>Kraunami naudotojai…</p>}
       {error && <p className="error">{error}</p>}
-      {!loading && !error && <p>Įkelta naudotojų: {users.length}</p>}
+      {/* Sąrašas rodomas tik tada, kai duomenys sėkmingai įkelti.
+          key = unikalus id, kad React teisingai atpažintų kortelę. */}
+      {!loading && !error && (
+        <div className="user-list">
+          {users.map((user) => (
+            <UserCard key={user.id} user={user} />
+          ))}
+        </div>
+      )}
     </main>
   )
 }

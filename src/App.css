@@ -7,3 +7,10 @@
 .error {
   color: #b00020;
 }
+
+/* Adaptyvus kortelių tinklelis. */
+.user-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
+}
