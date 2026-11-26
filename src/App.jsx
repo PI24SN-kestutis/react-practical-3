@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import SearchBar from './components/SearchBar'
 import UserCard from './components/UserCard'
 import './App.css'
 
@@ -13,6 +14,8 @@ function App() {
   const [loading, setLoading] = useState(true)
   // Klaidos pranešimas naudotojui arba null, jei klaidos nėra.
   const [error, setError] = useState(null)
+  // Dabartinis paieškos tekstas (vienintelė paieškos būsena).
+  const [searchText, setSearchText] = useState('')
 
   // Duomenys įkeliami vieną kartą, komponentui pirmą kartą atsiradus ekrane.
   useEffect(() => {
@@ -46,16 +49,34 @@ function App() {
     return () => controller.abort()
   }, [])
 
+  // Paieškos teksto keitimo funkcija. SearchBar ją kviečia ir įvedant,
+  // ir valant (onSearchChange('')). Optimizavimas (useCallback) – vėliau.
+  function onSearchChange(text) {
+    setSearchText(text)
+  }
+
+  // Filtruojame jau įkeltus duomenis pagal vardo dalį (be didžiųjų/mažųjų
+  // raidžių skirtumo). Rezultatui atskiros būsenos nereikia – jis
+  // išvedamas iš users ir searchText. Optimizavimas (useMemo) – vėliau.
+  const query = searchText.trim().toLowerCase()
+  const filteredUsers = users.filter((user) =>
+    user.name.toLowerCase().includes(query),
+  )
+
   return (
     <main className="app">
       <h1>Naudotojų katalogas</h1>
       {loading && <p>Kraunami naudotojai…</p>}
       {error && <p className="error">{error}</p>}
+      <SearchBar searchText={searchText} onSearchChange={onSearchChange} />
       {/* Sąrašas rodomas tik tada, kai duomenys sėkmingai įkelti.
           key = unikalus id, kad React teisingai atpažintų kortelę. */}
-      {!loading && !error && (
+      {!loading && !error && filteredUsers.length === 0 && (
+        <p>Naudotojų nerasta.</p>
+      )}
+      {!loading && !error && filteredUsers.length > 0 && (
         <div className="user-list">
-          {users.map((user) => (
+          {filteredUsers.map((user) => (
             <UserCard key={user.id} user={user} />
           ))}
         </div>
